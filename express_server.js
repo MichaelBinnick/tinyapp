@@ -37,9 +37,16 @@ app.get('/urls', (req, res) => {
 
 app.post('/urls', (req, res) => {
   console.log(req.body);
-  const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = [req.body.longURL];
-  res.redirect(`/urls/${newShortURL}`);
+  const longURL = req.body.longURL;
+  if (!longURL) {
+    // if blank URL
+    return res.status(400).send('Empty URL, so sad!'); 
+  }
+
+  const id = generateRandomString();
+  urlDatabase[id] = longURL;
+  console.log(urlDatabase);
+  res.redirect(`/urls/${id}`);
 })
 
 app.get('/urls/new', (req, res) => {
@@ -47,7 +54,14 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:id', (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const id = req.params.id;
+  const longURL = urlDatabase[id];
+  if (!longURL) {
+    // incorrect id/shortURL
+    return res.status(400).send("That id doesn't exist!");
+  }
+
+  const templateVars = { id, longURL };
   res.render('urls_show', templateVars);
 });
 
