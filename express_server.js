@@ -16,8 +16,14 @@ const generateRandomString = function() {
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xk': 'http://www.google.com'
+  'b2xVn2': { 
+    longURL: 'http://www.lighthouselabs.ca',
+    userID: 'tester'
+  },
+  '9sm5xk': {
+    longURL: 'http://www.google.com',
+    userID: 'tester'
+  }
 };
 
 const users = {
@@ -45,6 +51,20 @@ const findUserByEmail = function(userEmail, userDB) {
   return null;
 }
 
+const urlsForUser = function(id) {
+  let filteredURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      let shortUrlID = urlDatabase[shortURL].shortURL;
+      console.log({shortUrlID: shortUrlID});
+      filteredURLs[shortUrlID] = urlDatabase[shortUrlID];
+    }
+  }
+  console.log({filteredURLs});
+  console.log(filteredURLs);
+  return filteredURLs;
+}
+
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
@@ -58,7 +78,10 @@ app.get('/u/:id', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']], urls: urlDatabase };
+  console.log(`UserID: ${req.cookies['user_id']}`);
+  const ownedURLs = urlsForUser(req.cookies['user_id']);
+  console.log(`Owned urls: ${ownedURLs}`);
+  const templateVars = { user: users[req.cookies['user_id']], urls: ownedURLs };
   res.render('urls_index', templateVars);
 });
 
@@ -74,7 +97,7 @@ app.post('/urls', (req, res) => {
   }
 
   const id = generateRandomString();
-  urlDatabase[id] = longURL;
+  urlDatabase[id] = { shortURL: id, longURL, userID: req.cookies['user_id']};
   console.log(urlDatabase);
   res.redirect(`/urls/${id}`);
 });
@@ -89,7 +112,7 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/register', (req, res) => {
   if (req.cookies['user_id']) {
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
   const templateVars = { user: users[req.cookies['user_id']] };
   res.render('user_register', templateVars);
@@ -115,7 +138,7 @@ app.post(`/register`, (req, res) =>{
 
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
-  const longURL = urlDatabase[id];
+  const longURL = urlDatabase[id].longURL;
   if (!longURL) {
     // incorrect id/shortURL
     return res.status(400).send("That id doesn't exist!");
