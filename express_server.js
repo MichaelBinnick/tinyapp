@@ -51,6 +51,9 @@ app.get('/', (req, res) => {
 
 app.get('/u/:id', (req, res) => {
   const longURL = urlDatabase[req.params.id];
+  if(!longURL) {
+    return res.status(403).send(`That URL hasn't been added! Try again.\n`);
+  }
   res.redirect(longURL);
 })
 
@@ -60,6 +63,9 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
+  if (!req.cookies['user_id']) {
+    return res.status(400).send(`Cannot add new URLs without being logged in. Please register or log in.\n`);
+  }
   console.log(req.body);
   const longURL = req.body.longURL;
   if (!longURL) {
@@ -74,11 +80,17 @@ app.post('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
+  if (!req.cookies['user_id']) {
+    return res.redirect('/login');
+  }
   const templateVars = { user: users[req.cookies['user_id']] };
   res.render('urls_new', templateVars);
 });
 
 app.get('/register', (req, res) => {
+  if (req.cookies['user_id']) {
+    res.redirect('/urls');
+  }
   const templateVars = { user: users[req.cookies['user_id']] };
   res.render('user_register', templateVars);
 });
@@ -123,6 +135,9 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.get(`/login`, (req, res) => {
+  if (req.cookies['user_id']) {
+    res.redirect('/urls');
+  }
   const templateVars = { user: users[req.cookies['user_id']] };
   res.render(`user_login`, templateVars);
 })
