@@ -15,29 +15,9 @@ const generateRandomString = function() {
 
 app.set('view engine', 'ejs');
 
-const urlDatabase = {
-  'b2xVn2': { 
-    longURL: 'http://www.lighthouselabs.ca',
-    userID: 'tester'
-  },
-  '9sm5xk': {
-    longURL: 'http://www.google.com',
-    userID: 'tester'
-  }
-};
+const urlDatabase = {};
 
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
+const users = {};
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -56,12 +36,9 @@ const urlsForUser = function(id) {
   for (let shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
       let shortUrlID = urlDatabase[shortURL].shortURL;
-      console.log({shortUrlID: shortUrlID});
       filteredURLs[shortUrlID] = urlDatabase[shortUrlID];
     }
   }
-  console.log({filteredURLs});
-  console.log(filteredURLs);
   return filteredURLs;
 }
 
@@ -78,9 +55,7 @@ app.get('/u/:id', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  console.log(`UserID: ${req.cookies['user_id']}`);
   const ownedURLs = urlsForUser(req.cookies['user_id']);
-  console.log(`Owned urls: ${ownedURLs}`);
   const templateVars = { user: users[req.cookies['user_id']], urls: ownedURLs };
   res.render('urls_index', templateVars);
 });
@@ -89,7 +64,6 @@ app.post('/urls', (req, res) => {
   if (!req.cookies['user_id']) {
     return res.status(400).send(`Cannot add new URLs without being logged in. Please register or log in.\n`);
   }
-  console.log(req.body);
   const longURL = req.body.longURL;
   if (!longURL) {
     // if blank URL
@@ -98,7 +72,6 @@ app.post('/urls', (req, res) => {
 
   const id = generateRandomString();
   urlDatabase[id] = { shortURL: id, longURL, userID: req.cookies['user_id']};
-  console.log(urlDatabase);
   res.redirect(`/urls/${id}`);
 });
 
@@ -121,12 +94,10 @@ app.get('/register', (req, res) => {
 app.post(`/register`, (req, res) =>{
   const { email, password } = req.body;
   if (!email || !password) {
-    console.log(users);
     return res.status(400).send(`400 error - incomplete registration form`);
   }
 
   if(findUserByEmail(email, users)) {
-    console.log(users);
     return res.status(400).send(`400 error - redundant registration`);
   }
 
@@ -148,11 +119,35 @@ app.get('/urls/:id', (req, res) => {
 });
   
 app.post('/urls/:id/update', (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  // if id doesnt exist
+  if (!urlDatabase[req.params.id]) {
+    return res.status(403).send(`That URL doesn't exist.\n`);
+  }
+  // if user isn't logged in
+  if (!req.cookies['user_id']) {
+    return res.status(403).send(`You aren't logged in, please register or login.\n`);
+  }
+  // if user doesn't own url
+  if (urlDatabase[req.params.id].userID !== req.cookies['user_id']) {
+    return res.status(403).send(`You don't own that URL.\n`);
+  }
+  urlDatabase[req.params.id].longURL = req.body.longURL;
   res.redirect(`/urls`);
 });
 
 app.post('/urls/:id/delete', (req, res) => {
+  // if id doesnt exist
+  if (!urlDatabase[req.params.id]) {
+    return res.status(403).send(`That URL doesn't exist.\n`);
+  }
+  // if user isn't logged in
+  if (!req.cookies['user_id']) {
+    return res.status(403).send(`You aren't logged in, please register or login.\n`);
+  }
+  // if user doesn't own url
+  if (urlDatabase[req.params.id].userID !== req.cookies['user_id']) {
+    return res.status(403).send(`You don't own that URL.\n`);
+  }
   delete urlDatabase[req.params.id];
   res.redirect(`/urls`);
 });
@@ -163,7 +158,7 @@ app.get(`/login`, (req, res) => {
   }
   const templateVars = { user: users[req.cookies['user_id']] };
   res.render(`user_login`, templateVars);
-})
+});
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
