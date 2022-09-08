@@ -48,7 +48,6 @@ app.post('/urls', (req, res) => {
   }
   const longURL = req.body.longURL;
   if (!longURL) {
-    // if blank URL
     return res.status(400).send('Empty URL, so sad!'); 
   }
 
@@ -160,7 +159,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post(`/logout`, (req, res) => {
-  req.session = null; // cookie artifact?
+  req.session = null;
   res.redirect(`/urls`);
 });
 
