@@ -105,6 +105,7 @@ app.post(`/register`, (req, res) =>{
 
   const newID = generateRandomString();
   users[newID] = { id: newID, email, password };
+  console.log(users);
   res.cookie(`user_id`, newID);
   res.redirect(`/urls`);
 });
@@ -163,9 +164,9 @@ app.get(`/login`, (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  const email = req.body.email;
   const user = findUserByEmail(email, users);
-  if (!user || password !== user.password) {
+  if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
     return res.status(403).send(`403 - incorrect details`);
   }
 
