@@ -166,7 +166,8 @@ app.get(`/login`, (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const user = findUserByEmail(email, users);
-  if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
+  const passwordMatches = bcrypt.compareSync(req.body.password, user.password);
+  if (!user || !passwordMatches) {
     return res.status(403).send(`403 - incorrect details`);
   }
 
