@@ -1,6 +1,8 @@
 const express = require('express');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
+const { generateRandomString, findUserByEmail, urlsForUser } = require('./helpers');
+
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -19,36 +21,6 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-const generateRandomString = function() {
-  let result = '';
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
-  for (let i = 6; i > 0; i--) {
-    const randChar = chars.charAt(Math.floor(Math.random() * chars.length));
-    result += randChar;
-  }
-  return result;
-}
-
-const findUserByEmail = function(userEmail, userDB) {
-  for (const user in userDB) {
-    if (userEmail === userDB[user].email) {
-      return userDB[user];
-    }
-  }
-  return null;
-}
-
-const urlsForUser = function(id) {
-  let filteredURLs = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      let shortUrlID = urlDatabase[shortURL].shortURL;
-      filteredURLs[shortUrlID] = urlDatabase[shortUrlID];
-    }
-  }
-  return filteredURLs;
-}
-
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
@@ -62,7 +34,7 @@ app.get('/u/:id', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  const ownedURLs = urlsForUser(req.session.user_id);
+  const ownedURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { user: users[req.session.user_id], urls: ownedURLs };
   res.render('urls_index', templateVars);
 });
@@ -111,7 +83,6 @@ app.post(`/register`, (req, res) =>{
 
   const newID = generateRandomString();
   users[newID] = { id: newID, email, password };
-  console.log(users);
   req.session.user_id = newID;
   res.redirect(`/urls`);
 });
