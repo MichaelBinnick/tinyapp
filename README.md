@@ -4,7 +4,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["Your URLs"](https://github.com/[michaelbinnick]/[tinyapp]/blob/[master]/URL_Index?raw=true)
+!["Your URLs"](https://github.com/michaelbinnick/tinyapp/blob/master/URL_Index?raw=true)
 !["URL View"](#./screenshots/URL_View)
 !["Register a new account"](#./screenshots/Registration)
 !["Add a new URL"](#./screenshots/Create_URL)
