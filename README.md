@@ -4,10 +4,17 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
+### Your URLs Page
 !["Your URLs"](https://github.com/michaelbinnick/tinyapp/blob/master/screenshots/URL_Index.png?raw=true)
-!["URL View"](#./screenshots/URL_View)
-!["Register a new account"](#./screenshots/Registration)
-!["Add a new URL"](#./screenshots/Create_URL)
+
+### Single URL View
+!["URL View"](https://github.com/michaelbinnick/tinyapp/blob/master/screenshots/URL_View.png?raw=true)
+
+### Account Registration
+!["Register a new account"](https://github.com/michaelbinnick/tinyapp/blob/master/screenshots/Registration.png?raw=true)
+
+### Adding a New URL
+!["Add a new URL"]((https://github.com/michaelbinnick/tinyapp/blob/master/screenshots/Create_URL.png?raw=true)
 
 ## Dependencies
 
