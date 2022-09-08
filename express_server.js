@@ -34,6 +34,9 @@ app.get('/u/:id', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
+  if (!req.session.user_id) {
+    return res.redirect('/login');
+  }
   const ownedURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { user: users[req.session.user_id], urls: ownedURLs };
   res.render('urls_index', templateVars);
@@ -72,10 +75,10 @@ app.get('/register', (req, res) => {
 
 app.post(`/register`, (req, res) =>{
   const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, 10);
-  if (!email || !password) {
-    return res.status(400).send(`400 error - incomplete registration form`);
+  if (!email || !req.body.password) {
+    return res.status(400).send(`400 error - incomplete registration form`)
   }
+  const password = bcrypt.hashSync(req.body.password, 10);
 
   if(findUserByEmail(email, users)) {
     return res.status(400).send(`400 error - redundant registration`);
@@ -89,11 +92,12 @@ app.post(`/register`, (req, res) =>{
 
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
-  const longURL = urlDatabase[id].longURL;
-  if (!longURL) {
+  const urlID = urlDatabase[id];
+  if (!urlID) {
     // incorrect id/shortURL
     return res.status(400).send("That id doesn't exist!");
   }
+  const longURL = urlID.longURL;
   const templateVars = { id, longURL, user: users[req.session.user_id] };
   res.render('urls_show', templateVars);
 });
@@ -143,6 +147,9 @@ app.get(`/login`, (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const user = findUserByEmail(email, users);
+  if (!req.body.password) {
+    res.status(403).send('You didn\'t enter a password!');
+  }
   const passwordMatches = bcrypt.compareSync(req.body.password, user.password);
   if (!user || !passwordMatches) {
     return res.status(403).send(`403 - incorrect details`);
