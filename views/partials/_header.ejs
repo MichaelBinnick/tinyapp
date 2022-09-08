@@ -23,7 +23,7 @@
           <a class="nav-item nav-link" href="/login">Login</a>
         <% } %>
         <% if (user) { %>
-          <span>logged in as: <%= user.email %></span>
+          <span class="mx-auto align-middle lead" style="padding-top: 3px; color: rgb(73, 73, 73);">logged in as: <strong><%= user.email %></strong></span>
           <form action="/logout" method="POST">
             <button type="submit" class="btn btn-outline-danger" style="margin-left: 20px">Logout</button>
           </form>
