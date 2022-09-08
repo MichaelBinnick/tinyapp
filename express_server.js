@@ -1,5 +1,5 @@
 const express = require('express');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 
 const app = express();
@@ -11,7 +11,13 @@ const urlDatabase = {};
 const users = {};
 
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['i_guess_this_is_a_secret_just_try_it'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 const generateRandomString = function() {
   let result = '';
@@ -48,7 +54,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/u/:id', (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   if(!longURL) {
     return res.status(403).send(`That URL hasn't been added! Try again.\n`);
   }
@@ -56,13 +62,13 @@ app.get('/u/:id', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  const ownedURLs = urlsForUser(req.cookies['user_id']);
-  const templateVars = { user: users[req.cookies['user_id']], urls: ownedURLs };
+  const ownedURLs = urlsForUser(req.session.user_id);
+  const templateVars = { user: users[req.session.user_id], urls: ownedURLs };
   res.render('urls_index', templateVars);
 });
 
 app.post('/urls', (req, res) => {
-  if (!req.cookies['user_id']) {
+  if (!req.session.user_id) {
     return res.status(400).send(`Cannot add new URLs without being logged in. Please register or log in.\n`);
   }
   const longURL = req.body.longURL;
@@ -72,23 +78,23 @@ app.post('/urls', (req, res) => {
   }
 
   const id = generateRandomString();
-  urlDatabase[id] = { shortURL: id, longURL, userID: req.cookies['user_id']};
+  urlDatabase[id] = { shortURL: id, longURL, userID: req.session.user_id};
   res.redirect(`/urls/${id}`);
 });
 
 app.get('/urls/new', (req, res) => {
-  if (!req.cookies['user_id']) {
+  if (!req.session.user_id) {
     return res.redirect('/login');
   }
-  const templateVars = { user: users[req.cookies['user_id']] };
+  const templateVars = { user: users[req.session.user_id] };
   res.render('urls_new', templateVars);
 });
 
 app.get('/register', (req, res) => {
-  if (req.cookies['user_id']) {
+  if (req.session.user_id) {
     return res.redirect('/urls');
   }
-  const templateVars = { user: users[req.cookies['user_id']] };
+  const templateVars = { user: users[req.session.user_id] };
   res.render('user_register', templateVars);
 });
 
@@ -106,7 +112,7 @@ app.post(`/register`, (req, res) =>{
   const newID = generateRandomString();
   users[newID] = { id: newID, email, password };
   console.log(users);
-  res.cookie(`user_id`, newID);
+  req.session.user_id = newID;
   res.redirect(`/urls`);
 });
 
@@ -117,7 +123,7 @@ app.get('/urls/:id', (req, res) => {
     // incorrect id/shortURL
     return res.status(400).send("That id doesn't exist!");
   }
-  const templateVars = { id, longURL, user: users[req.cookies['user_id']] };
+  const templateVars = { id, longURL, user: users[req.session.user_id] };
   res.render('urls_show', templateVars);
 });
   
@@ -127,11 +133,11 @@ app.post('/urls/:id/update', (req, res) => {
     return res.status(403).send(`That URL doesn't exist.\n`);
   }
   // if user isn't logged in
-  if (!req.cookies['user_id']) {
+  if (!req.session.user_id) {
     return res.status(403).send(`You aren't logged in, please register or login.\n`);
   }
   // if user doesn't own url
-  if (urlDatabase[req.params.id].userID !== req.cookies['user_id']) {
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     return res.status(403).send(`You don't own that URL.\n`);
   }
   urlDatabase[req.params.id].longURL = req.body.longURL;
@@ -144,11 +150,11 @@ app.post('/urls/:id/delete', (req, res) => {
     return res.status(403).send(`That URL doesn't exist.\n`);
   }
   // if user isn't logged in
-  if (!req.cookies['user_id']) {
+  if (!req.session.user_id) {
     return res.status(403).send(`You aren't logged in, please register or login.\n`);
   }
   // if user doesn't own url
-  if (urlDatabase[req.params.id].userID !== req.cookies['user_id']) {
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     return res.status(403).send(`You don't own that URL.\n`);
   }
   delete urlDatabase[req.params.id];
@@ -156,10 +162,10 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.get(`/login`, (req, res) => {
-  if (req.cookies['user_id']) {
+  if (req.session.user_id) {
     res.redirect('/urls');
   }
-  const templateVars = { user: users[req.cookies['user_id']] };
+  const templateVars = { user: users[req.session.user_id] };
   res.render(`user_login`, templateVars);
 });
 
@@ -171,12 +177,12 @@ app.post('/login', (req, res) => {
     return res.status(403).send(`403 - incorrect details`);
   }
 
-  res.cookie('user_id', user.id);
+  req.session.user_id = user.id;
   res.redirect(`/urls`);
 });
 
 app.post(`/logout`, (req, res) => {
-  res.clearCookie('user_id');
+  req.session = null; // cookie artifact?
   res.redirect(`/urls`);
 });
 
