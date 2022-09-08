@@ -1,7 +1,17 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+
 const app = express();
 const PORT = 8080; // default port 8080
+
+app.set('view engine', 'ejs');
+
+const urlDatabase = {};
+const users = {};
+
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const generateRandomString = function() {
   let result = '';
@@ -12,15 +22,6 @@ const generateRandomString = function() {
   }
   return result;
 }
-
-app.set('view engine', 'ejs');
-
-const urlDatabase = {};
-
-const users = {};
-
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 const findUserByEmail = function(userEmail, userDB) {
   for (const user in userDB) {
@@ -92,7 +93,8 @@ app.get('/register', (req, res) => {
 });
 
 app.post(`/register`, (req, res) =>{
-  const { email, password } = req.body;
+  const email = req.body.email;
+  const password = bcrypt.hashSync(req.body.password, 10);
   if (!email || !password) {
     return res.status(400).send(`400 error - incomplete registration form`);
   }
