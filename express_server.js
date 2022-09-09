@@ -30,11 +30,11 @@ app.get('/', (req, res) => {
 
 app.get('/u/:id', (req, res) => {
   const link = urlDatabase[req.params.id];
-  if(!link) {
+  if (!link) {
     return res.redirect(`/urls/${req.params.id}`);
   }
   res.redirect(link.longURL);
-})
+});
 
 app.get('/urls', (req, res) => {
   const ownedURLs = urlsForUser(req.session.user_id, urlDatabase);
@@ -48,7 +48,7 @@ app.post('/urls', (req, res) => {
   }
   const longURL = req.body.longURL;
   if (!longURL) {
-    return res.status(400).send('Empty URL, so sad!'); 
+    return res.status(400).send('Empty URL, so sad!');
   }
 
   const id = generateRandomString();
@@ -77,14 +77,14 @@ app.post(`/register`, (req, res) =>{
   if (!email || !req.body.password) {
     return res.status(400).send(
       '<h1>You didn\'t enter an email and/or password.</h1>\n<h2>Please return to <a href="http://localhost:8080/register">register</a></h2>'
-      );
+    );
   }
   const password = bcrypt.hashSync(req.body.password, 10);
 
-  if(findUserByEmail(email, users)) {
+  if (findUserByEmail(email, users)) {
     return res.status(400).send(
       '<h1>That email is already in use!</h1>\n<h2>Please <a href="http://localhost:8080/login">login</a></h2>'
-      );
+    );
   }
 
   const newID = generateRandomString();
@@ -107,9 +107,9 @@ app.get('/urls/:id', (req, res) => {
   
 app.get('/urls/null', (req, res) => {
   const user = req.session.user_id;
-  const templateVars = { user }
+  const templateVars = { user };
   return res.render('urls_null');
-})
+});
 
 app.post('/urls/:id', (req, res) => {
   // if id doesnt exist
@@ -159,18 +159,18 @@ app.post('/login', (req, res) => {
   if (!req.body.password) {
     return res.status(403).send(
       '<h1>You didn\'t enter an email and/or a password!</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
-      );
+    );
   }
   if (!user) {
     return res.status(403).send(
       '<h1>Incorrect credentials.</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
-      );
+    );
   }
   const passwordMatches = bcrypt.compareSync(req.body.password, user.password);
   if (!passwordMatches) {
     return res.status(403).send(
       '<h1>Incorrect credentials.</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
-      );
+    );
   }
 
   req.session.user_id = user.id;
