@@ -16,4 +16,6 @@ Second attempt:
 
 -changed GET '/urls/:id' route
   -added error page for not being logged in
-  
+  -added error page for trying to access a link you don't own
+
+-changed POST '/urls/:id/update' to POST 'urls/:id' in line with instructions

@@ -15,7 +15,7 @@
     <%- include('partials/_header') %>
     <div class="card text-center">
       <div class="card-header"></div>
-      <% if (user) { %>
+      <% if (user && urlID.userID === user) { %>
         <div class="card-body">
           <h5 class="card-title">TinyURL for: <%= longURL %></h5>
           <p class="card-text">
@@ -24,7 +24,7 @@
         </div>
         <div class="card-footer text-muted">
           <h3>Edit:</h3>
-          <form class="form-inline" action="/urls/<%= id %>/update" method="POST">
+          <form class="form-inline" action="/urls/<%= id %>" method="POST">
             <div class="form-group mx-auto" style="width: 500px">
               <label for="longURL">New URL:</label>
               <input
@@ -38,6 +38,15 @@
             </div>
           </form>
         </div>
+      <% } %>
+
+      <% if (user && urlID.userID !== user) { %>
+        <span>Error: You don't own that link!</span>
+        <form method="GET" action="/urls">
+          <button type="submit" class="btn btn-primary">
+            Go back
+          </button>
+        </form>
       <% } %>
       <% if (!user) { %>
         <span>Error: You can't view links because you're not logged in!</span>

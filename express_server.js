@@ -37,9 +37,6 @@ app.get('/u/:id', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  // if (!req.session.user_id) {
-  //   return;
-  // }
   const ownedURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { user: users[req.session.user_id], urls: ownedURLs };
   res.render('urls_index', templateVars);
@@ -100,11 +97,11 @@ app.get('/urls/:id', (req, res) => {
     return res.status(400).send("That id doesn't exist!");
   }
   const longURL = urlID.longURL;
-  const templateVars = { id, longURL, user: users[req.session.user_id] };
+  const templateVars = { id, longURL, user: req.session.user_id, urlID };
   res.render('urls_show', templateVars);
 });
   
-app.post('/urls/:id/update', (req, res) => {
+app.post('/urls/:id', (req, res) => {
   // if id doesnt exist
   if (!urlDatabase[req.params.id]) {
     return res.status(403).send(`That URL doesn't exist.\n`);
