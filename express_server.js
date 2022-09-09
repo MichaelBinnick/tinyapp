@@ -75,12 +75,16 @@ app.get('/register', (req, res) => {
 app.post(`/register`, (req, res) =>{
   const email = req.body.email;
   if (!email || !req.body.password) {
-    return res.status(400).send(`400 error - incomplete registration form`)
+    return res.status(400).send(
+      '<h1>You didn\'t enter an email and/or password.</h1>\n<h2>Please return to <a href="http://localhost:8080/register">register</a></h2>'
+      );
   }
   const password = bcrypt.hashSync(req.body.password, 10);
 
   if(findUserByEmail(email, users)) {
-    return res.status(400).send(`400 error - redundant registration`);
+    return res.status(400).send(
+      '<h1>That email is already in use!</h1>\n<h2>Please return to <a href="http://localhost:8080/register">register</a></h2>'
+      );
   }
 
   const newID = generateRandomString();
