@@ -91,16 +91,22 @@ app.post(`/register`, (req, res) =>{
 
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
+  const user = users[req.session.user_id];
   const urlID = urlDatabase[id];
-  if (!urlID) {
-    // incorrect id/shortURL
-    return res.status(400).send("That id doesn't exist!");
+  let longURL = '';
+  if (user && urlID) {
+    longURL = urlID.longURL;
   }
-  const longURL = urlID.longURL;
-  const templateVars = { id, longURL, user: req.session.user_id, urlID };
+  const templateVars = { id, longURL, user, urlID };
   res.render('urls_show', templateVars);
 });
   
+app.get('/urls/null', (req, res) => {
+  const user = req.session.user_id;
+  const templateVars = { user }
+  return res.render('urls_null');
+})
+
 app.post('/urls/:id', (req, res) => {
   // if id doesnt exist
   if (!urlDatabase[req.params.id]) {

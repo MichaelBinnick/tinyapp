@@ -17,5 +17,7 @@ Second attempt:
 -changed GET '/urls/:id' route
   -added error page for not being logged in
   -added error page for trying to access a link you don't own
+  -added error page for trying to access a link that doesn't exist
+  -fixed bugs that came up with displaying the right endpoint for each usecase
 
 -changed POST '/urls/:id/update' to POST 'urls/:id' in line with instructions

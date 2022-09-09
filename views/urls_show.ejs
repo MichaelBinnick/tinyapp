@@ -10,12 +10,24 @@
     />
     <title>URL - TinyApp Example</title>
   </head>
-
+  
   <body>
     <%- include('partials/_header') %>
     <div class="card text-center">
       <div class="card-header"></div>
-      <% if (user && urlID.userID === user) { %>
+      
+      <!-- if URL doesn't exist -->
+      <% if (!urlID) { %>
+        <span>Error: Link does not exist!</span>
+        <form method="GET" action="/urls">
+          <button type="submit" class="btn btn-primary">
+            Go back
+          </button>
+        </form>
+      <% } %>
+
+      <!-- if logged in and URL is owned -->
+      <% if (user && urlID && urlID.userID === user.id) { %>
         <div class="card-body">
           <h5 class="card-title">TinyURL for: <%= longURL %></h5>
           <p class="card-text">
@@ -40,7 +52,8 @@
         </div>
       <% } %>
 
-      <% if (user && urlID.userID !== user) { %>
+      <!-- if logged in, but URL isn't owned -->
+      <% if (user && urlID && urlID.userID !== user.id) { %>
         <span>Error: You don't own that link!</span>
         <form method="GET" action="/urls">
           <button type="submit" class="btn btn-primary">
@@ -48,7 +61,9 @@
           </button>
         </form>
       <% } %>
-      <% if (!user) { %>
+
+      <!-- if not logged in -->
+      <% if (!user && urlID) { %>
         <span>Error: You can't view links because you're not logged in!</span>
         <form method="GET" action="/login">
           <button type="submit" class="btn btn-primary">
@@ -56,6 +71,7 @@
           </button>
         </form>
       <% } %>
+
     </div>
     <!-- Bootstrap JS -->
     <script
