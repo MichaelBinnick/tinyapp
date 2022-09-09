@@ -152,8 +152,11 @@ app.post('/login', (req, res) => {
   if (!req.body.password) {
     res.status(403).send('You didn\'t enter a password!');
   }
+  if (!user) {
+    return res.status(403).send(`403 - incorrect details`);
+  }
   const passwordMatches = bcrypt.compareSync(req.body.password, user.password);
-  if (!user || !passwordMatches) {
+  if (!passwordMatches) {
     return res.status(403).send(`403 - incorrect details`);
   }
 
