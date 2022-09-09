@@ -153,14 +153,23 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const user = findUserByEmail(email, users);
   if (!req.body.password) {
-    res.status(403).send('You didn\'t enter a password!');
+    res.status(403).send(
+      '<h1>You didn\'t enter a password!</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
+      );
+    return res.redirect('/login');
   }
   if (!user) {
-    return res.status(403).send(`403 - incorrect details`);
+    res.status(403).send(
+      '<h1>Incorrect credentials.</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
+      );
+    return res.redirect('/login');
   }
   const passwordMatches = bcrypt.compareSync(req.body.password, user.password);
   if (!passwordMatches) {
-    return res.status(403).send(`403 - incorrect details`);
+    res.status(403).send(
+      '<h1>Incorrect credentials.</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
+      );
+    return res.redirect('/login');
   }
 
   req.session.user_id = user.id;
