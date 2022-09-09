@@ -29,11 +29,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/u/:id', (req, res) => {
-  const longURL = urlDatabase[req.params.id].longURL;
-  if(!longURL) {
-    return res.status(403).send(`That URL hasn't been added! Try again.\n`);
+  const link = urlDatabase[req.params.id];
+  if(!link) {
+    return res.redirect(`/urls/${req.params.id}`);
   }
-  res.redirect(longURL);
+  res.redirect(link.longURL);
 })
 
 app.get('/urls', (req, res) => {
