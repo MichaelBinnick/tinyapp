@@ -83,7 +83,7 @@ app.post(`/register`, (req, res) =>{
 
   if(findUserByEmail(email, users)) {
     return res.status(400).send(
-      '<h1>That email is already in use!</h1>\n<h2>Please return to <a href="http://localhost:8080/register">register</a></h2>'
+      '<h1>That email is already in use!</h1>\n<h2>Please <a href="http://localhost:8080/login">login</a></h2>'
       );
   }
 

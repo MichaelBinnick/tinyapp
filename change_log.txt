@@ -21,3 +21,5 @@ Second attempt:
   -fixed bugs that came up with displaying the right endpoint for each usecase
 
 -changed POST '/urls/:id/update' to POST 'urls/:id' in line with instructions
+
+-fixed up error routes and HTML message endpoints for POST /login and POST /register
