@@ -13,3 +13,7 @@ Second attempt:
 
 -changed GET '/urls/new' route
   -fixed bug where a non-logged in user couldn't reach login page
+
+-changed GET '/urls/:id' route
+  -added error page for not being logged in
+  
