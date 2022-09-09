@@ -22,7 +22,10 @@ app.use(cookieSession({
 }));
 
 app.get('/', (req, res) => {
-  res.send('Hello!');
+  if (!req.session.user_id) {
+    return res.redirect('/login');
+  }
+  return res.redirect('/urls');
 });
 
 app.get('/u/:id', (req, res) => {
@@ -34,9 +37,9 @@ app.get('/u/:id', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  if (!req.session.user_id) {
-    return res.redirect('/login');
-  }
+  // if (!req.session.user_id) {
+  //   return;
+  // }
   const ownedURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { user: users[req.session.user_id], urls: ownedURLs };
   res.render('urls_index', templateVars);

@@ -1,0 +1,8 @@
+First submission - Rejected
+
+Second attempt:
+(Basing requirements on https://web.compass.lighthouselabs.ca/projects/tiny-app/evaluations/26842)
+
+-changed GET '/' route to redirect to '/urls' if user is logged in
+  -or to redirect to '/login' if the user is not logged in
+

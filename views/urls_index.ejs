@@ -13,38 +13,55 @@
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Short URL ID</th>
-          <th scope="col">Long URL</th>
-          <th scope="col">Edit</th>
-          <th scope="col">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% for (let id in urls) { %>
+    <% if (user) { %>
+      <table class="table">
+        <thead>
           <tr>
-            <td><%= urls[id].shortURL %></td>
-            <td><%= urls[id].longURL %></td>
-            <td>
-              <form method="GET" action="/urls/<%= id %>/">
-                <button type="submit" class="btn btn-outline-primary">
-                  Edit
-                </button>
-              </form>
-            </td>
-            <td>
-              <form method="POST" action="/urls/<%= id %>/delete">
-                <button type="submit" class="btn btn-outline-danger">
-                  Delete
-                </button>
-              </form>
-            </td>
+            <th scope="col">Short URL ID</th>
+            <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
           </tr>
-        <% } %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% for (let id in urls) { %>
+            <tr>
+              <td><%= urls[id].shortURL %></td>
+              <td><%= urls[id].longURL %></td>
+              <td>
+                <form method="GET" action="/urls/<%= id %>/">
+                  <button type="submit" class="btn btn-outline-primary">
+                    Edit
+                  </button>
+                </form>
+              </td>
+              <td>
+                <form method="POST" action="/urls/<%= id %>/delete">
+                  <button type="submit" class="btn btn-outline-danger">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <% } %>
+            <td>
+              <form method="GET" action="/urls/new">
+                <button type="submit" class="btn btn-outline-success">
+                  Create a New Short Link
+                </button>
+              </form>
+            </td>
+          </tbody>
+        </table>
+      <% }; %>
+      <% if (!user) { %>
+        <span>Error: You have no links because you're not logged in!</span>
+        <form method="GET" action="/login">
+          <button type="submit" class="btn btn-primary">
+            Login
+          </button>
+        </form>
+      <% } %>
   </main>
 
   <!-- Bootstrap JS -->
