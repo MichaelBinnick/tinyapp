@@ -157,23 +157,20 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const user = findUserByEmail(email, users);
   if (!req.body.password) {
-    res.status(403).send(
-      '<h1>You didn\'t enter a password!</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
+    return res.status(403).send(
+      '<h1>You didn\'t enter an email and/or a password!</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
       );
-    return res.redirect('/login');
   }
   if (!user) {
-    res.status(403).send(
+    return res.status(403).send(
       '<h1>Incorrect credentials.</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
       );
-    return res.redirect('/login');
   }
   const passwordMatches = bcrypt.compareSync(req.body.password, user.password);
   if (!passwordMatches) {
-    res.status(403).send(
+    return res.status(403).send(
       '<h1>Incorrect credentials.</h1>\n<h2>Please return to <a href="http://localhost:8080/login">login</a></h2>'
       );
-    return res.redirect('/login');
   }
 
   req.session.user_id = user.id;
@@ -183,14 +180,6 @@ app.post('/login', (req, res) => {
 app.post(`/logout`, (req, res) => {
   req.session = null;
   res.redirect(`/urls`);
-});
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get('/hello', (req, res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
 });
 
 app.listen(PORT, () => {
